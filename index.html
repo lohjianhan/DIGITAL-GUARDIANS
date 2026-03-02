@@ -108,7 +108,7 @@
   leaderboardRef.on("value", snapshot => {
     leaderboardList.innerHTML = "";
     const data = snapshot.val() || {};
-    const entries = Object.values(data);
+    const entries = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
     entries.forEach((entry, index) => {
       const li = document.createElement("li");
       li.textContent = `${entry.team} – "${entry.phrase}"`;
@@ -142,7 +142,21 @@
         resultDiv.style.color = "#ffd700";
       } else {
         // Add to Firebase
-        leaderboardRef.push({team: team, phrase: input});
+        leaderboardRef.push({
+          team: team,
+          phrase: input,
+          timestamp: Date.now()
+        }, error => {
+          if(error){
+            // If push fails
+            resultDiv.textContent = "Tidak dapat menyimpan ke leaderboard. Sila cuba lagi.";
+            resultDiv.style.color = "#ff5555";
+          } else {
+            // If push succeeds
+            resultDiv.textContent = `Betul! Frasa ini milik: ${team}`;
+            resultDiv.style.color = "#00ff99";
+          }
+        });
         resultDiv.textContent = `Betul! Frasa ini milik: ${team}`;
         resultDiv.style.color = "#00ff99";
       }
@@ -153,5 +167,6 @@
 </script>
 </body>
 </html>
+
 
 
